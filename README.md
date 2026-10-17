@@ -1,4 +1,4 @@
-> Each POC represents my vision of a modern enterprise platform, exploring a different platform engineering decision: what to standardise, what to automate, what to delegate to managed services, and where teams should retain control.
+> Series "Golden pipeline" - Each POC represents my vision of a modern enterprise platform, exploring a different platform engineering decision: what to standardise, what to automate, what to delegate to managed services, and where teams should retain control.
 
 # POC: Amazon EKS Auto Mode with Terragrunt
 
@@ -11,15 +11,15 @@ A companion project,
 builds the same kind of platform the self-managed way: Karpenter, the AWS Load
 Balancer Controller and IRSA installed and operated by hand.
 
-| Concern                 | Self-managed (karpenter POC)                     | **EKS Auto Mode (this POC)**                                  |
-| ----------------------- | ------------------------------------------------ | ------------------------------------------------------------- |
-| Node provisioning       | Karpenter Helm chart, IAM, SQS interruption queue | Built in; AWS runs Karpenter in the control plane             |
-| Node OS / patching      | Your AMI choice, your upgrade cadence            | Bottlerocket-based, immutable, replaced at most every 21 days |
-| Load balancers          | AWS Load Balancer Controller (Helm + IRSA)       | Built in (`eks.amazonaws.com/alb` IngressClass)               |
-| CNI, kube-proxy, CoreDNS, EBS CSI | EKS add-ons you version and upgrade     | Built in and upgraded by AWS                                  |
-| Workload IAM            | IRSA (OIDC provider)                             | EKS Pod Identity only (no OIDC provider)                      |
-| Customisation           | Full control of controllers and node AMIs        | `NodePool` / `NodeClass` / `IngressClassParams` CRDs          |
-| Cost                    | EC2 only                                         | EC2 plus a per-instance Auto Mode management fee              |
+| Concern                           | Self-managed (karpenter POC)                      | **EKS Auto Mode (this POC)**                                  |
+| --------------------------------- | ------------------------------------------------- | ------------------------------------------------------------- |
+| Node provisioning                 | Karpenter Helm chart, IAM, SQS interruption queue | Built in; AWS runs Karpenter in the control plane             |
+| Node OS / patching                | Your AMI choice, your upgrade cadence             | Bottlerocket-based, immutable, replaced at most every 21 days |
+| Load balancers                    | AWS Load Balancer Controller (Helm + IRSA)        | Built in (`eks.amazonaws.com/alb` IngressClass)               |
+| CNI, kube-proxy, CoreDNS, EBS CSI | EKS add-ons you version and upgrade               | Built in and upgraded by AWS                                  |
+| Workload IAM                      | IRSA (OIDC provider)                              | EKS Pod Identity only (no OIDC provider)                      |
+| Customisation                     | Full control of controllers and node AMIs         | `NodePool` / `NodeClass` / `IngressClassParams` CRDs          |
+| Cost                              | EC2 only                                          | EC2 plus a per-instance Auto Mode management fee              |
 
 ## What gets deployed
 
@@ -41,14 +41,14 @@ flowchart LR
   ed -.Pod Identity.-> r53
 ```
 
-| Stack (`envs/main/plt/poc/…`) | Module             | What it does                                                                                       |
-| ----------------------------- | ------------------ | -------------------------------------------------------------------------------------------------- |
-| `dns`                         | `modules/dns`      | Public hosted zone for `nyd-plt.ailves2009.com` (or looks up an existing one)                        |
-| `vpc`                         | `modules/vpc`      | VPC across 3 AZs: private /20 subnets for nodes and pods, public subnets for ALBs, NAT, Flow Logs |
-| `acm`                         | `modules/acm`      | Wildcard ACM certificate, DNS validation, expiry alarms and dashboard                             |
+| Stack (`envs/main/plt/poc/…`) | Module             | What it does                                                                                                    |
+| ----------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `dns`                         | `modules/dns`      | Public hosted zone for `nyd-plt.ailves2009.com` (or looks up an existing one)                                   |
+| `vpc`                         | `modules/vpc`      | VPC across 3 AZs: private /20 subnets for nodes and pods, public subnets for ALBs, NAT, Flow Logs               |
+| `acm`                         | `modules/acm`      | Wildcard ACM certificate, DNS validation, expiry alarms and dashboard                                           |
 | `eks`                         | `modules/eks`      | EKS Auto Mode cluster, access entries, `metrics-server` and `external-dns` community add-ons, Pod Identity role |
-| `platform`                    | `modules/platform` | Custom `NodePool` (arm64, Spot then On-Demand), `IngressClassParams` and the `alb` IngressClass     |
-| `nginx`                       | `modules/nginx`    | Hardened NGINX Deployment, Service, PDB, HPA v2 and Ingress                                        |
+| `platform`                    | `modules/platform` | Custom `NodePool` (arm64, Spot then On-Demand), `IngressClassParams` and the `alb` IngressClass                 |
+| `nginx`                       | `modules/nginx`    | Hardened NGINX Deployment, Service, PDB, HPA v2 and Ingress                                                     |
 
 Bootstrap (`envs/pred/plt/poc/…`): `iam-state` (scoped CI/CD role) and
 `s3-state` (versioned, KMS-encrypted state bucket with TLS-only policy).
