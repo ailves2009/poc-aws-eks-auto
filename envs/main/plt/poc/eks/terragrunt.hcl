@@ -1,91 +1,44 @@
 # /envs/main/plt/poc/eks/terragrunt.hcl
 
-terraform {
-  source = "../../../../../modules/eks"
-}
-
-include {
+include "root" {
   path = find_in_parent_folders("root.hcl")
 }
 
-generate "backend" {
-  path      = "backend.tf"
-  if_exists = "overwrite"
-  contents  = <<EOF
 terraform {
-  backend "s3" {
-    bucket         = "poc-plt-terraform-state"
-    key            = "eks/terraform.tfstate"
-    region         = "eu-west-3"
-    use_lockfile   = true
-    encrypt        = true
-  }
-}
-EOF
-}
-
-generate "providers_version" {
-  path      = "versions.tf"
-  if_exists = "overwrite"
-  contents  = <<EOF
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 5.0.0"
-    }
-  }
-}
-EOF
+  source = "../../../../../modules/eks"
 }
 
 dependency "vpc" {
   config_path = "../vpc"
 
   mock_outputs = {
-    vpc_id              = "mock-vpc-id"
-    private_subnet_ids  = ["mock-subnet-1", "mock-subnet-2"]
+    vpc_id             = "vpc-00000000000000000"
+    private_subnet_ids = ["subnet-00000000000000001", "subnet-00000000000000002", "subnet-00000000000000003"]
   }
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
 }
 
-dependency "key-pair" {
-  config_path = "../key-pair"
+dependency "dns" {
+  config_path = "../dns"
+
   mock_outputs = {
-    key_pair_name  = "mock-key_pair_name"
+    zone_id  = "Z0000000000000000000"
+    zone_arn = "arn:aws:route53:::hostedzone/Z0000000000000000000"
   }
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
 }
 
 inputs = {
-  cluster_name                              = "poc-plt-eks"
-  kubernetes_version                        = "1.33"
+  kubernetes_version = "1.37"
 
-  endpoint_public_access                    = true
-  endpoint_private_access                   = true
-  enable_cluster_creator_admin_permissions  = true
+  vpc_id     = dependency.vpc.outputs.vpc_id
+  subnet_ids = dependency.vpc.outputs.private_subnet_ids
 
-  create_iam_role                     = true # Determines whether an IAM role is created for the cluster
-  # ebs_csi_driver_role                 = "ebs-csi-driver-role"
-  eks_irsa_app_role                   = "eks-irsa-app-role"
-  load_balancer_controller_role       = "load-balancer-controller-role"
-  cluster_autoscaler_role             = "cluster-autoscaler-role"
-  cw_observability_role               = "cw-observability-role"
+  # Public API endpoint for the POC; restrict to your egress IP(s) in real use.
+  endpoint_public_access       = true
+  endpoint_public_access_cidrs = ["0.0.0.0/0"]
 
-  vpc_id                              = dependency.vpc.outputs.vpc_id
-  subnet_ids                          = dependency.vpc.outputs.private_subnet_ids
-  control_plane_subnet_ids            = dependency.vpc.outputs.private_subnet_ids # be better to do separate from subnet_ids
-  use_latest_ami_release_version      = true
-  force_update_version                = false
+  cloudwatch_log_group_retention_in_days = 30
 
-  namespace                           = "poc-eks"
-  service_account_names               = ["app-front-sa", "app-be-sa"]
-
-  cloudwatch_logs_retention_in_days   = 365
-  node_group_ami_type                 = "AL2023_x86_64_STANDARD"
-  instance_types                      = ["t3.small"]
-
-  min_size                            = 1
-  max_size                            = 5
-  desired_size                        = 4
-
-  key_pair_name                            = dependency.key-pair.outputs.key_pair_name
+  zone_arn = dependency.dns.outputs.zone_arn
 }

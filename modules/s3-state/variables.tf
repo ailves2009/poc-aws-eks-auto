@@ -1,4 +1,4 @@
-# /modules/s3-state/inputs.tf
+# /modules/s3-state/variables.tf
 
 variable "bucket_name" {
   description = "S3 bucket name for storing Terraform state"
@@ -17,7 +17,13 @@ variable "deploy_role_arn" {
 }
 
 variable "versioning" {
-  description = "Enable versioning for the S3 bucket"
+  description = "Enable versioning for the S3 bucket (keep enabled for Terraform state)"
   type        = bool
-  default     = false
+  default     = true
+}
+
+variable "noncurrent_version_retention_days" {
+  description = "Days to keep previous state versions"
+  type        = number
+  default     = 90
 }

@@ -4,7 +4,6 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: check-yaml
-        exclude: modules/deploy/nginx/nginx-manifests.yaml
       - id: check-merge-conflict
 
   - repo: https://github.com/antonbabenko/pre-commit-terraform
@@ -12,6 +11,4 @@ repos:
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
-        args: ['--tf-init-args=-upgrade']
       - id: terragrunt_fmt
-      - id: terragrunt_validate

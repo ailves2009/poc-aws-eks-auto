@@ -5,6 +5,14 @@ resource "aws_acm_certificate" "wildcard" {
   domain_name               = "*.${var.domain_name}"
   subject_alternative_names = [var.domain_name]
   validation_method         = "DNS"
+
+  tags = merge(var.tags, {
+    Name = "wildcard-${var.domain_name}"
+  })
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Additional certificate for CloudFront in us-east-1
@@ -20,6 +28,10 @@ resource "aws_acm_certificate" "cloudfront_wildcard" {
     Purpose = "CloudFront-SSL"
     Region  = "us-east-1"
   })
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_route53_record" "validation" {
@@ -30,7 +42,7 @@ resource "aws_route53_record" "validation" {
       record = dvo.resource_record_value
     }
   }
-  zone_id         = data.aws_route53_zone.this.zone_id
+  zone_id         = var.zone_id
   name            = each.value.name
   type            = each.value.type
   records         = [each.value.record]
@@ -48,7 +60,7 @@ resource "aws_route53_record" "cloudfront_validation" {
     }
   } : {}
 
-  zone_id         = data.aws_route53_zone.this.zone_id
+  zone_id         = var.zone_id
   name            = each.value.name
   type            = each.value.type
   records         = [each.value.record]
@@ -67,9 +79,4 @@ resource "aws_acm_certificate_validation" "cloudfront" {
   provider                = aws.us_east_1
   certificate_arn         = aws_acm_certificate.cloudfront_wildcard[0].arn
   validation_record_fqdns = [for record in aws_route53_record.cloudfront_validation : record.fqdn]
-}
-
-data "aws_route53_zone" "this" {
-  name         = "${var.domain_name}."
-  private_zone = false
 }

@@ -1,26 +1,5 @@
 # /modules/vpc/variables.tf
 
-variable "region" {
-  description = "value of the AWS region"
-  type        = string
-}
-
-variable "client" {
-  description = "Client name for resource naming"
-  type        = string
-}
-
-variable "env" {
-  description = "Environment name (dev, staging, prod)"
-  type        = string
-}
-
-variable "cloudwatch_logs_retention_in_days" {
-  description = "CloudWatch logs retention period in days"
-  type        = number
-  default     = 365
-}
-
 variable "vpc_name" {
   description = "Name of the VPC"
   type        = string
@@ -38,7 +17,7 @@ variable "enable_nat_gateway" {
 }
 
 variable "single_nat_gateway" {
-  description = "Use a single NAT Gateway"
+  description = "Use a single NAT Gateway for all AZs"
   type        = bool
   default     = true
 }
@@ -55,13 +34,20 @@ variable "enable_dns_hostnames" {
   default     = true
 }
 
+variable "enable_flow_log" {
+  description = "Send VPC Flow Logs to CloudWatch Logs"
+  type        = bool
+  default     = true
+}
+
+variable "cloudwatch_logs_retention_in_days" {
+  description = "Retention for the VPC Flow Logs log group"
+  type        = number
+  default     = 30
+}
+
 variable "tags" {
   description = "Tags to apply to all resources"
   type        = map(string)
-}
-
-variable "manage_default_network_acl" {
-  description = "Manage default network ACL"
-  type        = bool
-  default     = false
+  default     = {}
 }

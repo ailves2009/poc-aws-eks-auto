@@ -5,6 +5,11 @@ variable "domain_name" {
   type        = string
 }
 
+variable "zone_id" {
+  description = "Route53 hosted zone for the DNS validation records"
+  type        = string
+}
+
 variable "enable_monitoring" {
   description = "Enable CloudWatch monitoring for certificate expiry"
   type        = bool
@@ -15,12 +20,6 @@ variable "sns_topic_arn" {
   description = "SNS topic ARN for certificate expiry alerts (optional)"
   type        = string
   default     = null
-}
-
-variable "env" {
-  description = "Environment name for tagging"
-  type        = string
-  default     = "prd"
 }
 
 variable "tags" {

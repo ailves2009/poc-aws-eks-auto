@@ -1,22 +1,16 @@
 # modules/dns/outputs.tf
 
-output "domain_name" {
-  description = "DNS zone name"
-  value       = aws_route53_zone.this.name
+output "zone_id" {
+  description = "Route53 hosted zone ID"
+  value       = local.zone_id
 }
 
-output "hosted_zone_id" {
-  description = "Route53 hosted zone ID"
-  value       = aws_route53_zone.this.zone_id
+output "zone_arn" {
+  description = "ARN of the hosted zone"
+  value       = local.zone_arn
 }
 
 output "name_servers" {
-  description = "Name servers assigned to the hosted zone (public zones only)"
-  value       = try(aws_route53_zone.this.name_servers, [])
+  description = "Name servers to delegate the zone to (NS record in the parent zone)"
+  value       = local.name_servers
 }
-
-output "domain_arn" {
-  description = "ARN of the hosted zone"
-  value       = aws_route53_zone.this.arn
-}
-

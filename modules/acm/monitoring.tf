@@ -1,5 +1,7 @@
 # modules/acm/monitoring.tf
-# SSL Certificate Monitoring for ACM для отслеживания истечения сертификатов
+# Expiry monitoring for the ACM certificate (ACM auto-renews DNS-validated
+# certificates; the alarms catch a renewal that silently fails, e.g. after the
+# validation CNAME is removed).
 
 # Local variable for determining SNS topic ARN
 locals {
@@ -129,4 +131,3 @@ resource "aws_cloudwatch_metric_alarm" "certificate_critical_expiry" {
 }
 
 data "aws_region" "current" {}
-data "aws_caller_identity" "current" {}

@@ -1,7 +1,7 @@
 # /modules/s3-state/outputs.tf
 
 output "s3_bucket_arn" {
-  description = "S3 State Bucket name"
+  description = "ARN of the Terraform state bucket"
   value       = aws_s3_bucket.state_s3.arn
 }
 
@@ -11,4 +11,9 @@ output "region" {
 
 output "account" {
   value = data.aws_caller_identity.current.account_id
+}
+
+output "kms_key_arn" {
+  description = "KMS key that encrypts the state objects"
+  value       = aws_kms_key.this.arn
 }

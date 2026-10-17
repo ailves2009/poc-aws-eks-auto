@@ -1,47 +1,29 @@
 # /envs/main/plt/poc/acm/terragrunt.hcl
 
+include "root" {
+  path = find_in_parent_folders("root.hcl")
+}
+
 terraform {
   source = "../../../../../modules/acm"
 }
 
-include {
-  path = find_in_parent_folders("root.hcl")
-}
+dependency "dns" {
+  config_path = "../dns"
 
-generate "backend" {
-  path      = "backend.tf"
-  if_exists = "overwrite"
-  contents  = <<EOF
-terraform {
-  backend "s3" {
-    bucket         = "poc-plt-terraform-state"
-    key            = "acm/terraform.tfstate"
-    region         = "eu-west-3"
-    use_lockfile   = true
-    encrypt        = true
+  mock_outputs = {
+    zone_id  = "Z0000000000000000000"
+    zone_arn = "arn:aws:route53:::hostedzone/Z0000000000000000000"
   }
-}
-EOF
-}
-
-generate "providers_version" {
-  path      = "versions.tf"
-  if_exists = "overwrite"
-  contents  = <<EOF
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 5.0.0"
-    }
-  }
-}
-EOF
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
 }
 
 inputs = {
-  enable_monitoring       = true
-  alarm_email             = ["ailves2009@gmail.com"]
-  create_sns_topic        = true
-  sns_topic_name          = "acm-certificates"
+  zone_id = dependency.dns.outputs.zone_id
+
+  enable_monitoring = true
+  # Add real addresses to get e-mail notifications (each must confirm the SNS
+  # subscription). With an empty list the alarms are created without actions.
+  alarm_email    = []
+  sns_topic_name = "acm-certificates"
 }

@@ -13,7 +13,7 @@ data/
 *-secret.yaml
 !*-sealed-secret.yaml
 
-# Terragrunt cache
+# Terragrunt cache and generated files
 .terragrunt-cache/
 **/.terragrunt-cache/
 
@@ -50,6 +50,5 @@ venv/
 node_modules/
 package-lock.json
 
-# Вложенные git repos
-.git/submodules/
-EOF
+# Local archives
+*.tar.gz

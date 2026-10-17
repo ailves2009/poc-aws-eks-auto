@@ -1,4 +1,4 @@
-# /modules/iamstate/outputs.tf
+# /modules/iam-state/outputs.tf
 
 output "deploy_role_arn" {
   description = "ARN cicd-role"

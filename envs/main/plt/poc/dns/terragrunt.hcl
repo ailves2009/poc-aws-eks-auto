@@ -1,45 +1,18 @@
 # /envs/main/plt/poc/dns/terragrunt.hcl
+# After the first apply, add an NS record for the zone in the parent zone
+# (parent_domain in root.hcl) using the name_servers output, otherwise ACM DNS
+# validation never completes.
+
+include "root" {
+  path = find_in_parent_folders("root.hcl")
+}
 
 terraform {
   source = "../../../../../modules/dns"
 }
 
-include {
-  path = find_in_parent_folders("root.hcl")
-}
-
-generate "backend" {
-  path      = "backend.tf"
-  if_exists = "overwrite"
-  contents  = <<EOF
-terraform {
-  backend "s3" {
-    bucket       = "poc-plt-terraform-state"
-    key          = "dns/terraform.tfstate"
-    region       = "eu-west-3"
-    use_lockfile = true
-    encrypt      = true
-  }
-}
-EOF
-}
-
-generate "providers_version" {
-  path      = "versions.tf"
-  if_exists = "overwrite"
-  contents  = <<EOF
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 5.0.0"
-    }
-  }
-}
-EOF
-}
-
 inputs = {
-  force_destroy  = false
+  create_zone = true
+  # external-dns owns the app records; allow the zone to go away on destroy.
+  force_destroy = true
 }
-
