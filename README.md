@@ -1,6 +1,6 @@
 > Series "Golden pipeline" - Each POC represents my vision of a modern enterprise platform, exploring a different platform engineering decision: what to standardise, what to automate, what to delegate to managed services, and where teams should retain control.
 
-# POC: Amazon EKS Auto Mode with Terragrunt
+# Innovate Inc. — POC: Amazon EKS Auto Mode with Terragrunt
 
 A public NGINX service with HTTPS, pod autoscaling and node autoscaling on
 **Amazon EKS Auto Mode**, built with Terraform and Terragrunt in a clean AWS account.
