@@ -229,3 +229,7 @@ The state bucket has `prevent_destroy`. Remove it only on purpose.
   Prometheus/Grafana. Auto Mode node logs are available through the `NodeDiagnostic` CRD.
 - **Network policies.** Auto Mode supports Kubernetes `NetworkPolicy` through the
   built-in VPC CNI. Enable it with a custom `NodeClass` and add default-deny policies.
+
+---
+
+License: MIT (see [LICENSE](LICENSE)). Authors: see [CONTRIBUTORS.md](CONTRIBUTORS.md).
